@@ -1,0 +1,2 @@
+# Assessing-the-effects-of-various-vaccination-scenarios-on-malaria-dynamics
+ASSESSING THE EFFECTS OF VARIOUS VACCINATION SCENARIOS ON MALARIA DYNAMICS IN AFRICA: A MACHINE LEARNING BASED APPROACH
