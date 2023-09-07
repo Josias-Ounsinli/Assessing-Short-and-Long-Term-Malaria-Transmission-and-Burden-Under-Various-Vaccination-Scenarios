@@ -1,0 +1,4 @@
+outs:
+- md5: df13449351e18d1e11d1c1e3e67b89f1
+  size: 4350
+  path: tasmin_timeseries_annual_cru_1901-2021_MWI.csv

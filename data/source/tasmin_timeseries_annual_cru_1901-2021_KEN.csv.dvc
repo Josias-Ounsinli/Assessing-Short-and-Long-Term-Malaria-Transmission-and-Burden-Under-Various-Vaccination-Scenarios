@@ -1,0 +1,4 @@
+outs:
+- md5: f7a4ec959a2da61b63e8f4bd7745f0ba
+  size: 7166
+  path: tasmin_timeseries_annual_cru_1901-2021_KEN.csv

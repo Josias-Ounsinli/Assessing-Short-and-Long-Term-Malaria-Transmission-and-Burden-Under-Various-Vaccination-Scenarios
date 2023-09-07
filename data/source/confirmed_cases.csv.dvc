@@ -1,0 +1,4 @@
+outs:
+- md5: 18a776e0d0730caa84a4a7350c376aaa
+  size: 21051
+  path: confirmed_cases.csv

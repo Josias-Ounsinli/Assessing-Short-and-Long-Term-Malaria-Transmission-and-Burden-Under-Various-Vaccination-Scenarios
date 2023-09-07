@@ -1,0 +1,4 @@
+outs:
+- md5: 1c89ba670d304c4dc6ffe1f5bf17cc5f
+  size: 5373
+  path: pr_timeseries_annual_cru_1901-2021_MWI.csv

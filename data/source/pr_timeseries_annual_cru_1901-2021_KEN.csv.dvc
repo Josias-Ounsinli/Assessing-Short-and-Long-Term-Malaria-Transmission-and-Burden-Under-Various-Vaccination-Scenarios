@@ -1,0 +1,4 @@
+outs:
+- md5: 330b42f6fb1d2691fe523b52e2dce35d
+  size: 8718
+  path: pr_timeseries_annual_cru_1901-2021_KEN.csv

@@ -1,0 +1,4 @@
+outs:
+- md5: 7487aed7c4ebc2b164ffd9feca67f299
+  size: 8718
+  path: tasmin_timeseries_annual_cru_1901-2021_GHA.csv
