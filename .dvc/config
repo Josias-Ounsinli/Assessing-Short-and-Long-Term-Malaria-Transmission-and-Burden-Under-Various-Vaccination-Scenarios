@@ -1,6 +1,8 @@
 [core]
-    remote = storage-cleaned-subdatasets
+    remote = storage-cleaned-data
 ['remote "storage-source-data"']
     url = gdrive://1JbAuJlgOVnT84u8kq2zDxWO-44S5RbWv/data/source
 ['remote "storage-cleaned-subdatasets"']
     url = gdrive://1JbAuJlgOVnT84u8kq2zDxWO-44S5RbWv/data/cleaned/sub-datasets
+['remote "storage-cleaned-data"']
+    url = gdrive://1JbAuJlgOVnT84u8kq2zDxWO-44S5RbWv/data/cleaned
