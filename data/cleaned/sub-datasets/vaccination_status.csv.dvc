@@ -1,0 +1,4 @@
+outs:
+- md5: ed8e0c3faf2fae347e55b4ae55070f79
+  size: 3428
+  path: vaccination_status.csv
