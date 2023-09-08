@@ -1,0 +1,4 @@
+outs:
+- md5: 046e6d5d9858533be51b7972e7675497
+  size: 23517
+  path: total_malaria_cases (confimed+presumed).csv

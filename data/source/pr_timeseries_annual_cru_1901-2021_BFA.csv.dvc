@@ -1,0 +1,4 @@
+outs:
+- md5: 32945212fd8ca007b5a147b6948cc75c
+  size: 13011
+  path: pr_timeseries_annual_cru_1901-2021_BFA.csv

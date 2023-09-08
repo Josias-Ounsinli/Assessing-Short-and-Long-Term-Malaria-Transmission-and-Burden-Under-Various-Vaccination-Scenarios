@@ -1,0 +1,5 @@
+[core]
+    remote = storage-source-data
+['remote "storage-source-data"']
+    url = gdrive://1JbAuJlgOVnT84u8kq2zDxWO-44S5RbWv/data/source
+    gdrive_acknowledge_abuse = true

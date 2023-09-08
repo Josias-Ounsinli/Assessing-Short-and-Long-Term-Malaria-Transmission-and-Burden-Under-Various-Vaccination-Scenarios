@@ -1,0 +1,5 @@
+outs:
+- md5: 3c5cfb5c6a9360d716ca83254a395ef1
+  size: 175605
+  isexec: true
+  path: malaria-in-africa.csv

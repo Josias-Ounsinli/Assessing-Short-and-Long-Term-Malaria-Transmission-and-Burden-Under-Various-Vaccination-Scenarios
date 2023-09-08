@@ -1,0 +1,4 @@
+outs:
+- md5: 391789c54f7159ba47b3295ab6c31bb0
+  size: 11158
+  path: pr_timeseries_annual_cru_1901-2021_GHA.csv

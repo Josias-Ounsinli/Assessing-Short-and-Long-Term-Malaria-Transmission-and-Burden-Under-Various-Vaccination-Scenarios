@@ -1,0 +1,4 @@
+outs:
+- md5: 3ed39d654769472a9df3fe7c5671ddc6
+  size: 10942
+  path: tasmin_timeseries_annual_cru_1901-2021_BFA.csv
