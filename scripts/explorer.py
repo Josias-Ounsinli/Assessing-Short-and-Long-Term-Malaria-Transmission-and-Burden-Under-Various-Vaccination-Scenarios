@@ -30,7 +30,6 @@ class DataTransformer:
         -------
 
         """
-
         exts = ["xlsx", "csv"]
 
         with dvc.api.open(filepath, repo=repo, mode="rb") as file:
@@ -59,12 +58,10 @@ class DataTransformer:
 
         country_column : str
 
-
         Returns
         -------
 
         """
-
         # Subset data
         cleaned_data = data[data[country_column].isin(self.COUNTRIES)]
         # Reset data
@@ -81,12 +78,10 @@ class DataTransformer:
 
         year_column : str
 
-
         Returns
         -------
 
         """
-
         # Convert year_column to datetime format
         data.loc[:, year_column] = pd.to_datetime(data[year_column], format="%Y")
 
@@ -146,7 +141,6 @@ class DataTransformer:
         -------
 
         """
-
         series_columns = series_metadata[0]
         series_name = series_metadata[1]
         series_keyword = series_metadata[2]
@@ -195,7 +189,6 @@ class DataTransformer:
         -------
 
         """
-
         # subset dataset
         data = source_df[source_df.columns[:2]]
 
