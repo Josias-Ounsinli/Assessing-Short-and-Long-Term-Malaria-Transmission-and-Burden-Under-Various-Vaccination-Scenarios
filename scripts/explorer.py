@@ -58,7 +58,6 @@ class DataTransformer:
 
         country_column : str
 
-
         Returns
         -------
 
@@ -78,7 +77,6 @@ class DataTransformer:
         data : pd.DataFrame
 
         year_column : str
-
 
         Returns
         -------
