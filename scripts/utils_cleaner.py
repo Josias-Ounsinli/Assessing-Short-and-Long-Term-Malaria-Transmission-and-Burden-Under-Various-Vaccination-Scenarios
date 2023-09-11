@@ -1,5 +1,6 @@
 """ Get information on a dataframe """
 
+from IPython.display import display
 import pandas as pd
 import numpy as np
 
@@ -101,7 +102,7 @@ class DataFrameCleaner:
             .rename(columns={"index": "Columns", 0: "nb_outliers"})
         )
 
-        outlier_columns = outlier_table[outlier_table.iloc[:, 1] > 0][
+        outlier_columns = outlier_table[outlier_table["nb_outliers"] > 0][
             "Columns"
         ].to_list()
 

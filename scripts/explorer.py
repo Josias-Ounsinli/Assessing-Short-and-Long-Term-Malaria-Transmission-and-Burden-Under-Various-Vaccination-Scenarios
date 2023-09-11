@@ -40,7 +40,9 @@ class DataTransformer:
                 if ext == "xlsx":
                     data = pd.read_excel(file, nrows=kwargs["nrows"])
                 else:
-                    data = pd.read_csv(file, header=kwargs["header"])
+                    data = pd.read_csv(
+                        file, header=kwargs["header"], parse_dates=kwargs["parse_dates"]
+                    )
             else:
                 if ext == "xlsx":
                     data = pd.read_excel(file)
