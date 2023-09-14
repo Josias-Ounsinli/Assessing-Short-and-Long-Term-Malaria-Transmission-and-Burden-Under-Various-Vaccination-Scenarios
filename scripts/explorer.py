@@ -12,7 +12,7 @@ class DataTransformer:
     def __init__(self):
         """Init method"""
 
-    def load_data(self, ext: str, filepath, repo="./", **kwargs):
+    def load_data(self, ext: str, filepath, repo="./", rev: str = None, **kwargs):
         """Load a dataset
 
         Parameters
@@ -32,7 +32,7 @@ class DataTransformer:
         """
         exts = ["xlsx", "csv"]
 
-        with dvc.api.open(filepath, repo=repo, mode="rb") as file:
+        with dvc.api.open(filepath, repo=repo, mode="rb", rev=rev) as file:
             if ext not in exts:
                 raise ValueError(f"Invalid ext type. Expected one of: {exts}")
 
