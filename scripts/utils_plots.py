@@ -116,8 +116,7 @@ class EDAPlots:
             "Feature_31",
             "Feature_32",
             "Feature_33",
-            "Feature_34",
-            "Feature_35",
+            "Feature_34"
         ]
 
         targets = [

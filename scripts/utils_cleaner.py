@@ -24,9 +24,10 @@ class DataFrameCleaner:
 
     def replace_in_string_to_int(self, column: str, to_replace: str, replace_by: str):
         """Replace in string column and convert to int"""
-        self.data[column] = (
-            self.data[column].str.replace(to_replace, replace_by).astype(int)
-        )
+        self.data[column] = self.data[column].str.replace(to_replace, replace_by)
+        self.data[column] = self.data[column].fillna(-1)
+        self.data[column] = self.data[column].astype(int)
+        self.data[column] = self.data[column].replace(-1, np.nan)
 
     def split_in_subframes(self, column: str):
         """Split data in sub dataframes"""
@@ -56,14 +57,29 @@ class DataFrameCleaner:
 
         self.drop_columns(list(drop_columns))
 
+    def _fillna_numbers(self, data: pd.DataFrame):
+        """Fill missing values in a DataFrame using average growth rate"""
+        data = data.copy()
+        data = data.reset_index(drop=True)
+        for column in data.select_dtypes(include="number").columns:
+            growth_rate = (data[column].pct_change()).mean()
+            for i in list(data[data[column].isna()].index):
+                index = data.loc[:i, column].last_valid_index()
+                if index is None:
+                    index = data.loc[i:, column].first_valid_index()
+                value = data[column].loc[index]
+                if index < i:
+                    data.loc[i, column] = value * ((1 + growth_rate) ** (i - index))
+                else:
+                    data.loc[i, column] = value / ((1 + growth_rate) ** (index - i))
+        return data
+
     def fill_missing(self, column: str):
         """Fill missing values using ffill and bfill method"""
 
         subsets = self.split_in_subframes(column)
 
-        frames_filled = [
-            frame.fillna(method="ffill").fillna(method="bfill") for frame in subsets
-        ]
+        frames_filled = [self._fillna_numbers(frame) for frame in subsets]
 
         self.data = pd.concat(frames_filled)
 
