@@ -279,14 +279,14 @@ def define_LSTM_net(
 def train_lstm(X_train, y_train, X_test, y_test, d_learning_params, results_dir):
     """Train model"""
 
-    # Récupérer la date et l'heure pour la création du fichier du modèle
+    # Get today datetime to create the model file
     current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
     results_dir = os.path.join(results_dir, current_datetime)
     params_file = os.path.join(
         results_dir, "lstm_params_{}.pkl".format(str(current_datetime))
     )
 
-    # Création du répertoire de sauvegarde des résultats s'il n'existe pas déjà
+    # Create results directory if not exists
     if not os.path.exists(results_dir):
         os.makedirs(results_dir)
 
@@ -298,8 +298,8 @@ def train_lstm(X_train, y_train, X_test, y_test, d_learning_params, results_dir)
     )
     log_dir = os.path.join(results_dir, "logs")
 
-    # Définir le comportement pendant l'apprentissage
-    # Utilisation de tensorboard pour suivre les performance de l'apprentissage non indispensable
+    # Défine learning settings
+    # Using tensorboard to track learning performance
     my_callbacks = [
         callbacks.ModelCheckpoint(
             filepath=model_file,
@@ -315,7 +315,7 @@ def train_lstm(X_train, y_train, X_test, y_test, d_learning_params, results_dir)
         callbacks.TensorBoard(log_dir=log_dir),
     ]
 
-    # Création du réseau de neurones
+    # Create model network
     model = define_LSTM_net(
         seq_length=X_train.shape[1],
         n_features=X_train.shape[2],
@@ -324,14 +324,14 @@ def train_lstm(X_train, y_train, X_test, y_test, d_learning_params, results_dir)
         fn_act=d_learning_params["activation_fn"],
     )
 
-    # compilation du modèle avec les différentes fonctions d'optimisation, de coût et de précision
+    # compile model using optimizer and loss
     model.compile(
         optimizer=d_learning_params["optimizer"],
         loss=d_learning_params["loss_fn"],
         metrics=d_learning_params["metrics"],
     )
 
-    # Entrainement du modèle
+    # Training
     history = model.fit(
         X_train,
         y_train,
@@ -343,7 +343,7 @@ def train_lstm(X_train, y_train, X_test, y_test, d_learning_params, results_dir)
         verbose=1,
     )
 
-    # Affichage de la loss et de la métrique
+    # Display loss and metrics
     fig_perf, axis_perf = plt.subplots(
         2, 1, figsize=(14, 8), sharex=True, constrained_layout=True
     )
@@ -368,7 +368,7 @@ def train_lstm(X_train, y_train, X_test, y_test, d_learning_params, results_dir)
         )
     )
 
-    # Afficher les performances du modèle
+    # Display model performances
     y_test_pred = model.predict(X_test)
     y_train_pred = model.predict(X_train)
     scores = dict()
