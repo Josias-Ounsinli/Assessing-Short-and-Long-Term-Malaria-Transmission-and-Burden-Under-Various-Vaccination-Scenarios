@@ -116,7 +116,7 @@ class EDAPlots:
             "Feature_31",
             "Feature_32",
             "Feature_33",
-            "Feature_34"
+            "Feature_34",
         ]
 
         targets = [
@@ -377,3 +377,56 @@ class EDAPlots:
             )
             fig.tight_layout()
             fig.savefig(f"../plots/{variable}_series_per_country.png")
+
+    def serve_country_predictions(self, country, data, targets_list, **kwargs):
+        """Serve country predictions"""
+
+        if kwargs["centered"]:
+            fig, axis = self._subplots_centered(
+                nrows=kwargs["nrows"],
+                ncols=kwargs["ncols"],
+                figsize=kwargs["figsize"],
+                nfigs=kwargs["nfigs"],
+            )
+
+            for variable in targets_list:
+                (
+                    data.set_index("Date")
+                    .groupby("Predicted")[variable]
+                    .plot(
+                        ax=axis[targets_list.index(variable)],
+                        ylabel=variable,
+                        style=".-",
+                        title=f"{kwargs['target_names'][targets_list.index(variable)]}",
+                    )
+                )
+
+        else:
+            fig, axis = plt.subplots(
+                nrows=kwargs["nrows"],
+                ncols=kwargs["ncols"],
+                figsize=kwargs["figsize"],
+                sharex=True,
+                constrained_layout=True,
+            )
+
+            for i in range(kwargs["nrows"]):
+                for j in range(kwargs["ncols"]):
+                    (
+                        data.set_index("Date")
+                        .groupby("Predicted")[targets_list[i * kwargs["ncols"] + j]]
+                        .plot(
+                            ax=axis[i, j],
+                            ylabel=targets_list[i * kwargs["ncols"] + j],
+                            style=".-",
+                            title=f"{kwargs['target_names'][i * kwargs['ncols'] + j]}",
+                        )
+                    )
+
+        fig.suptitle(
+            f"\nMalaria Trends in {country} from 2000 to 2070\n",
+            y=0.98,
+            fontsize=14,
+        )
+        fig.tight_layout()
+        fig.savefig(f"../plots/{country}_normal_predictions.png")
