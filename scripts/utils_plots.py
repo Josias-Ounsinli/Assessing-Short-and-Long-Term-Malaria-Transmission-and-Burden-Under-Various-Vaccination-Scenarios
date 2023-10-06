@@ -430,3 +430,22 @@ class EDAPlots:
         )
         fig.tight_layout()
         fig.savefig(f"../plots/{country}_normal_predictions.png")
+
+    def sirvd_dynamics(self, t_pred, compartments: dict, for_scenario):
+        """Plot model compartments dynamics
+
+        S, I, R, V and D over time
+        """
+
+        plt.figure(figsize=(20, 10))
+        for c in compartments.keys():
+            plt.plot(t_pred, compartments[c], label=f"{c}")
+
+        plt.xlabel("Time")
+        plt.ylabel("Population")
+        plt.title(
+            f"Scenario {for_scenario}: Simulated evolution of compartments size over time"
+        )
+        plt.legend()
+        plt.savefig(f"../plots/Scenario_{for_scenario}_compartment_dynamics")
+        plt.show()
