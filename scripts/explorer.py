@@ -3,7 +3,6 @@
 import dvc.api
 import pandas as pd
 
-
 class DataTransformer:
     """Transform dataset into a more suitable dataset"""
 
@@ -51,7 +50,7 @@ class DataTransformer:
 
         return data
 
-    def subset_study_countries(self, data, country_column):
+    def subset_study_countries(self, data, country_column, countries: None):
         """Subset the five study countries
 
         Parameters
@@ -65,7 +64,11 @@ class DataTransformer:
 
         """
         # Subset data
-        cleaned_data = data[data[country_column].isin(self.COUNTRIES)]
+        if countries:
+            cleaned_data = data[data[country_column].isin(countries)]
+        else:
+            cleaned_data = data[data[country_column].isin(self.COUNTRIES)]
+
         # Reset data
         cleaned_data.reset_index(drop=True, inplace=True)
 
@@ -212,5 +215,64 @@ class DataTransformer:
 
         # Convert year to datetime format
         data = self.convert_to_dateformat(data=data, year_column="Year")
+
+        return data
+
+    def get_url(self, variables: list, countries: list):
+        """
+        This function takes a list of variables and a list of countries as input,
+        and returns a URL that can be used to fetch data from the API.
+
+        Parameters
+        ----------
+        variables: list :
+
+        countries: list :
+
+        Returns
+        -------
+        url: str
+        """
+
+        url = (
+            "https://cckpapi.worldbank.org/cckp/v1/cru-x0.5_timeseries_"
+            f"{','.join(variables)}"
+            "_timeseries_annual_1901-2022_mean_historical_cru_ts4.07_mean/"
+            f"{','.join(countries)}"
+            "?_format=json"
+        )
+
+        return url
+
+    def get_climate_data(self, response_data, variable):
+        """Subset country climate data
+
+        Parameters
+        ----------
+        response_data:
+
+        url: str :
+
+        variable: str :
+
+        Returns
+        -------
+        data: pd.DataFrame :
+        """
+
+        data = (
+            pd.DataFrame()
+            .from_dict(response_data["data"][f"{variable}"])
+            .unstack()
+            .reset_index()
+            .rename(columns={"level_0": "ISO3", "level_1": "Date", 0: f"{variable}"})
+        )
+
+        data = data[data["Date"] >= "2000"]
+
+        # Convert year to datetime format
+        data["Date"] = data["Date"].str.split("-", expand=True)[0]
+        data["Date"] = data["Date"].astype(int)
+        data = self.convert_to_dateformat(data=data, year_column="Date")
 
         return data
