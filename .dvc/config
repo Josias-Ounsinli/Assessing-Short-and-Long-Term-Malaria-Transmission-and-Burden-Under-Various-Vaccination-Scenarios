@@ -1,5 +1,5 @@
 [core]
-    remote = storage-cleaned-final-data
+    remote = storage-source-final-projections-data
 ['remote "storage-source-data"']
     url = gdrive://1JbAuJlgOVnT84u8kq2zDxWO-44S5RbWv/data/source
 ['remote "storage-cleaned-subdatasets"']
@@ -8,3 +8,7 @@
     url = gdrive://1JbAuJlgOVnT84u8kq2zDxWO-44S5RbWv/data/cleaned
 ['remote "storage-cleaned-final-data"']
     url = gdrive://1JbAuJlgOVnT84u8kq2zDxWO-44S5RbWv/data/cleaned/final
+['remote "storage-source-final-data"']
+    url = gdrive://1JbAuJlgOVnT84u8kq2zDxWO-44S5RbWv/data/source/final
+['remote "storage-source-final-projections-data"']
+    url = gdrive://1JbAuJlgOVnT84u8kq2zDxWO-44S5RbWv/data/source/final/projections
