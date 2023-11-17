@@ -1,0 +1,4 @@
+outs:
+- md5: f891b47d29bb1c494954fef9a891fd5f
+  size: 307473
+  path: malaria-death-rates-by-age.csv
