@@ -1,0 +1,4 @@
+outs:
+- md5: 25bd78fb5fad6b2a3b3cbd4d85954ab2
+  size: 69624
+  path: incidence-of-malaria.csv
