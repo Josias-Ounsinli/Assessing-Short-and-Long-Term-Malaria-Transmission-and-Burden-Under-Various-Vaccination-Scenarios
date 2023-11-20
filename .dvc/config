@@ -1,5 +1,5 @@
 [core]
-    remote = storage-source-final-projections-data
+    remote = storage-cleaned-final-data
 ['remote "storage-source-data"']
     url = gdrive://1JbAuJlgOVnT84u8kq2zDxWO-44S5RbWv/data/source
 ['remote "storage-cleaned-subdatasets"']
