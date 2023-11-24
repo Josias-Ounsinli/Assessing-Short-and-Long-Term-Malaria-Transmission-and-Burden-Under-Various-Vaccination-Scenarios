@@ -41,7 +41,7 @@ class DataFrameCleaner:
 
         return subsets
 
-    def remove_more_20p_missing_values(self, column: str):
+    def remove_more_than_percent_missing_values(self, column: str, level):
         """Remove columns with missing value above 20% in country dataset"""
 
         subsets = self.split_in_subframes(column)
@@ -49,7 +49,7 @@ class DataFrameCleaner:
         datainfo = [DataFrameInfo(frame) for frame in subsets]
 
         drop_columns = [
-            set(frameinfo.missing_values_table(missing_level=20).index)
+            set(frameinfo.missing_values_table(missing_level=level).index)
             for frameinfo in datainfo
         ]
 
