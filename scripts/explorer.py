@@ -3,6 +3,7 @@
 import dvc.api
 import pandas as pd
 
+
 class DataTransformer:
     """Transform dataset into a more suitable dataset"""
 
@@ -37,7 +38,11 @@ class DataTransformer:
 
             if kwargs:
                 if ext == "xlsx":
-                    data = pd.read_excel(file, nrows=kwargs["nrows"])
+                    data = pd.read_excel(
+                        file,
+                        skiprows=kwargs["skiprows"],
+                        sheet_name=kwargs["sheet_name"],
+                    )
                 else:
                     data = pd.read_csv(
                         file, header=kwargs["header"], parse_dates=kwargs["parse_dates"]
