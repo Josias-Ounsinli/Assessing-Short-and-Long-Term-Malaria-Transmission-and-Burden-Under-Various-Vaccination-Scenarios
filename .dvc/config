@@ -12,3 +12,5 @@
     url = gdrive://1JbAuJlgOVnT84u8kq2zDxWO-44S5RbWv/data/source/final
 ['remote "storage-source-final-projections-data"']
     url = gdrive://1JbAuJlgOVnT84u8kq2zDxWO-44S5RbWv/data/source/final/projections
+['remote "storage-source-final-data-additional"']
+    url = gdrive://1JbAuJlgOVnT84u8kq2zDxWO-44S5RbWv/data/source/final/additional
