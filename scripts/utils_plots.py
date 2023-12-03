@@ -115,20 +115,12 @@ class EDAPlots:
             "Feature_30",
             "Feature_31",
             "Feature_32",
-            "Feature_33",
-            "Feature_34",
         ]
 
         targets = [
             "Target_1",
             "Target_2",
             "Target_3",
-            "Target_4",
-            "Target_5",
-            "Target_6",
-            "Target_7",
-            "Target_8",
-            "Target_9",
         ]
 
         if get_features:
@@ -286,7 +278,7 @@ class EDAPlots:
         fig.savefig("../plots/description_targets_per_country.png")
 
     def plot_serie_per_country(
-        self, data: pd.DataFrame, variable: str, countries_iso3: list, **kwargs
+        self, data: pd.DataFrame, country_column: str, targets_list: list, **kwargs
     ):
         """Describe a list of variable per country using pointplot"""
 
@@ -299,27 +291,87 @@ class EDAPlots:
             )
 
             if kwargs["vaccination_focus"]:
-                for country in countries_iso3:
-                    (
-                        data.loc[country, :]
-                        .groupby(kwargs["vaccination_variable"])[variable]
-                        .plot(
-                            ax=axis[countries_iso3.index(country)],
-                            ylabel=variable,
-                            style=".-",
-                            title=f"{kwargs['countries_names'][countries_iso3.index(country)]}",
-                        )
+                # for country in countries_iso3:
+                #     (
+                #         data.loc[country, :]
+                #         .groupby(kwargs["vaccination_variable"])[variable]
+                #         .plot(
+                #             ax=axis[countries_iso3.index(country)],
+                #             ylabel=variable,
+                #             style=".-",
+                #             title=f"{kwargs['countries_names'][countries_iso3.index(country)]}",
+                #         )
+                #     )
+
+                focus_on_rts = data[data["Feature_27"] == 1]
+                focus_on_r21 = data[data["Feature_28"] == 1]
+
+                for target in targets_list:
+                    sns.lineplot(
+                        data=data,
+                        x=kwargs["x_columns"],
+                        y=target,
+                        style=country_column,
+                        markers=True,
+                        dashes=False,
+                        markersize=10,
+                        ax=axis[targets_list.index(target)],
+                    )
+                    sns.lineplot(
+                        data=focus_on_rts,
+                        x=kwargs["x_columns"],
+                        y=target,
+                        style=country_column,
+                        markers=True,
+                        dashes=False,
+                        markersize=10,
+                        linestyle="",
+                        legend=None,
+                        ax=axis[targets_list.index(target)],
+                    )
+                    sns.lineplot(
+                        data=focus_on_r21,
+                        x=kwargs["x_columns"],
+                        y=target,
+                        style=country_column,
+                        markers=True,
+                        dashes=False,
+                        markersize=10,
+                        linestyle="",
+                        legend=None,
+                        alpha=0.5,
+                        ax=axis[targets_list.index(target)],
+                    )
+
+                    axis[targets_list.index(target)].set_title(
+                        kwargs["subtitles"][targets_list.index(target)]
                     )
 
             else:
-                for country in countries_iso3:
-                    (
-                        data.loc[country, variable].plot(
-                            ax=axis[countries_iso3.index(country)],
-                            ylabel=variable,
-                            style=".-",
-                            title=f"{kwargs['countries_names'][countries_iso3.index(country)]}",
-                        )
+                # for country in countries_iso3:
+                #     (
+                #         data.loc[country, variable].plot(
+                #             ax=axis[countries_iso3.index(country)],
+                #             ylabel=variable,
+                #             style=".-",
+                #             title=f"{kwargs['countries_names'][countries_iso3.index(country)]}",
+                #         )
+                #     )
+
+                for target in targets_list:
+                    sns.lineplot(
+                        data=data,
+                        x=kwargs["x_columns"],
+                        y=target,
+                        style=country_column,
+                        markers=True,
+                        dashes=False,
+                        markersize=10,
+                        ax=axis[targets_list.index(target)],
+                    )
+
+                    axis[targets_list.index(target)].set_title(
+                        kwargs["subtitles"][targets_list.index(target)]
                     )
 
         else:
@@ -332,51 +384,114 @@ class EDAPlots:
             )
 
             if kwargs["vaccination_focus"]:
+                # for i in range(kwargs["nrows"]):
+                #     for j in range(kwargs["ncols"]):
+                #         (
+                #             data.loc[countries_iso3[i * kwargs["ncols"] + j], :]
+                #             .groupby(kwargs["vaccination_variable"])[variable]
+                #             .plot(
+                #                 ax=axis[i, j],
+                #                 ylabel=variable,
+                #                 style=".-",
+                #                 title=f"{kwargs['countries_names'][i * kwargs['ncols'] + j]}",
+                #             )
+                #         )
+
+                focus_on_rts = data[data["Feature_27"] == 1]
+                focus_on_r21 = data[data["Feature_28"] == 1]
+
                 for i in range(kwargs["nrows"]):
                     for j in range(kwargs["ncols"]):
-                        (
-                            data.loc[countries_iso3[i * kwargs["ncols"] + j], :]
-                            .groupby(kwargs["vaccination_variable"])[variable]
-                            .plot(
-                                ax=axis[i, j],
-                                ylabel=variable,
-                                style=".-",
-                                title=f"{kwargs['countries_names'][i * kwargs['ncols'] + j]}",
-                            )
+                        sns.lineplot(
+                            data=data,
+                            x=kwargs["x_columns"],
+                            y=targets_list[i * kwargs["ncols"] + j],
+                            style=country_column,
+                            markers=True,
+                            dashes=False,
+                            markersize=10,
+                            ax=axis[i, j],
                         )
+                        sns.lineplot(
+                            data=focus_on_rts,
+                            x=kwargs["x_columns"],
+                            y=targets_list[i * kwargs["ncols"] + j],
+                            style=country_column,
+                            markers=True,
+                            dashes=False,
+                            markersize=10,
+                            linestyle="",
+                            legend=None,
+                            ax=axis[i, j],
+                        )
+                        sns.lineplot(
+                            data=focus_on_r21,
+                            x=kwargs["x_columns"],
+                            y=targets_list[i * kwargs["ncols"] + j],
+                            style=country_column,
+                            markers=True,
+                            dashes=False,
+                            markersize=10,
+                            linestyle="",
+                            legend=None,
+                            alpha=0.5,
+                            ax=axis[i, j],
+                        )
+
+                        axis[i, j].set_title(
+                            kwargs["subtitles"][i * kwargs["ncols"] + j]
+                        )
+                        axis[0, 1].set_xlabel("")
+
             else:
+                # for i in range(kwargs["nrows"]):
+                #     for j in range(kwargs["ncols"]):
+                #         (
+                #             data.loc[
+                #                 countries_iso3[i * kwargs["ncols"] + j], variable
+                #             ].plot(
+                #                 ax=axis[i, j],
+                #                 ylabel=variable,
+                #                 style=".-",
+                #                 title=f"{kwargs['countries_names'][i * kwargs['ncols'] + j]}",
+                #             )
+                #         )
+
                 for i in range(kwargs["nrows"]):
                     for j in range(kwargs["ncols"]):
-                        (
-                            data.loc[
-                                countries_iso3[i * kwargs["ncols"] + j], variable
-                            ].plot(
-                                ax=axis[i, j],
-                                ylabel=variable,
-                                style=".-",
-                                title=f"{kwargs['countries_names'][i * kwargs['ncols'] + j]}",
-                            )
+                        sns.lineplot(
+                            data=data,
+                            x=kwargs["x_columns"],
+                            y=targets_list[i * kwargs["ncols"] + j],
+                            style=country_column,
+                            markers=True,
+                            dashes=False,
+                            markersize=10,
+                            ax=axis[i, j],
                         )
+
+                        axis[i, j].set_title(
+                            kwargs["subtitles"][i * kwargs["ncols"] + j]
+                        )
+                        axis[0, 1].set_xlabel("")
 
         if kwargs["vaccination_focus"]:
             fig.suptitle(
-                f"\n{kwargs['variable_name']} series with focus on {kwargs['vaccination_variable_name']} per country over the study period (2000-2022)\n",
+                "\nTarget variables series with focus on RTS trials (orange color) and R21 trial (transparent green color) per country over the study period (2000-2022)\n",
                 y=0.98,
                 fontsize=14,
             )
             fig.tight_layout()
-            fig.savefig(
-                f"../plots/{variable}_series_per_country_focus_on_{kwargs['vaccination_variable_name']}.png"
-            )
+            fig.savefig("../plots/Target_series_per_country_focus_on_vaccination.png")
 
         else:
             fig.suptitle(
-                f"\n{kwargs['variable_name']} series per country over the study period (2000-2022)\n",
+                "\nTarget variables series per country over the study period (2000-2022)\n",
                 y=0.98,
                 fontsize=14,
             )
             fig.tight_layout()
-            fig.savefig(f"../plots/{variable}_series_per_country.png")
+            fig.savefig(f"../plots/Target_series_per_country.png")
 
     def serve_country_predictions(self, country, data, targets_list, **kwargs):
         """Serve country predictions"""
@@ -431,21 +546,87 @@ class EDAPlots:
         fig.tight_layout()
         fig.savefig(f"../plots/{country}_normal_predictions.png")
 
-    def sirvd_dynamics(self, t_pred, compartments: dict, for_scenario):
-        """Plot model compartments dynamics
+    # def sirvd_dynamics(self, t_pred, compartments: dict, for_scenario):
+    #     """Plot model compartments dynamics
 
-        S, I, R, V and D over time
-        """
+    #     S, I, R, V and D over time
+    #     """
 
-        plt.figure(figsize=(20, 10))
-        for c in compartments.keys():
-            plt.plot(t_pred, compartments[c], label=f"{c}")
+    #     plt.figure(figsize=(20, 10))
+    #     for c in compartments.keys():
+    #         plt.plot(t_pred, compartments[c], label=f"{c}")
 
-        plt.xlabel("Time")
-        plt.ylabel("Population")
-        plt.title(
-            f"Scenario {for_scenario}: Simulated evolution of compartments size over time"
+    #     plt.xlabel("Time")
+    #     plt.ylabel("Population")
+    #     plt.title(
+    #         f"Scenario {for_scenario}: Simulated evolution of compartments size over time"
+    #     )
+    #     plt.legend()
+    #     plt.savefig(f"../plots/Scenario_{for_scenario}_compartment_dynamics")
+    #     plt.show()
+
+    def evolution_plot_per_country(
+        self, data: pd.DataFrame, country_column: str, variables: list, **kwargs
+    ):
+        """Describe a list of variable per country using pointplot"""
+
+        if kwargs["centered"]:
+            fig, axis = self._subplots_centered(
+                nrows=kwargs["nrows"],
+                ncols=kwargs["ncols"],
+                figsize=kwargs["figsize"],
+                nfigs=kwargs["nfigs"],
+            )
+
+            for column in variables:
+                sns.lineplot(
+                    data=data,
+                    y=column,
+                    x=kwargs["x_column"],
+                    hue=country_column,
+                    style=country_column,
+                    markers=True,
+                    dashes=False,
+                    linewidth=1.5,
+                    markersize=8,
+                    ax=axis[variables.index(column)],
+                )
+
+                axis[variables.index(column)].set_title(
+                    kwargs["subtitles"][variables.index(column)]
+                )
+
+        else:
+            fig, axis = plt.subplots(
+                nrows=kwargs["nrows"],
+                ncols=kwargs["ncols"],
+                figsize=kwargs["figsize"],
+                sharex=True,
+                constrained_layout=True,
+            )
+
+            for i in range(kwargs["nrows"]):
+                for j in range(kwargs["ncols"]):
+                    sns.lineplot(
+                        data=data,
+                        y=variables[i * kwargs["ncols"] + j],
+                        x=kwargs["x_column"],
+                        hue=country_column,
+                        style=country_column,
+                        markers=True,
+                        dashes=False,
+                        linewidth=2,
+                        markersize=10,
+                        ax=axis[i, j],
+                    )
+
+                    axis[i, j].set_title(kwargs["subtitles"][i * kwargs["ncols"] + j])
+                    axis[0, 1].set_xlabel("")
+
+        fig.suptitle(
+            "\nEvolution of the target variables per study country over the study period (2000-2022)\n",
+            y=0.98,
+            fontsize=14,
         )
-        plt.legend()
-        plt.savefig(f"../plots/Scenario_{for_scenario}_compartment_dynamics")
-        plt.show()
+        fig.tight_layout()
+        fig.savefig("../plots/evolution_targets_per_study_country.png")
