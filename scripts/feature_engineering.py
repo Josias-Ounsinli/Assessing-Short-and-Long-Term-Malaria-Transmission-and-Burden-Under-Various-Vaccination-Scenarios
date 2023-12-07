@@ -18,7 +18,13 @@ class FeatureEnginnering(DataFrameCleaner):
         return b_0 * np.exp(-b_1 * time)
 
     def _creating_appropiate_susceptible_and_vaccinated_for_future(
-        self, data, coverage_0, coverage_2, initial_efficacy, efficacy_booster
+        self,
+        data,
+        coverage_0,
+        coverage_2,
+        initial_efficacy,
+        efficacy_booster,
+        r21=False,
     ):
         """Util function thta create new features"""
 
@@ -55,7 +61,7 @@ class FeatureEnginnering(DataFrameCleaner):
         # feat1: Vaccinated Aged 0
         data["Vaccinated Aged 0"] = data["Total Aged 0 (thousand)"] * coverage_0
 
-        # feat2: Susceptibles, not vaccinated (0-5)
+        # # feat2: Susceptibles, not vaccinated (0-5)
         for i in range(1, 6):
             data[f"Vaccinated Aged {i}"] = (
                 data[f"Vaccinated Aged {i-1}"].shift(1)
@@ -63,9 +69,9 @@ class FeatureEnginnering(DataFrameCleaner):
             )
 
         data[vac_columns] = data[vac_columns].fillna(0)
-        data["Susceptibles, not vaccinated (0-5)"] = (
-            np.array(data[pop_columns]) - np.array(data[vac_columns])
-        ).sum(axis=1)
+        # data["Susceptibles, not vaccinated (0-5)"] = (
+        #     np.array(data[pop_columns]) - np.array(data[vac_columns])
+        # ).sum(axis=1)
 
         # feat3: Effectively_protected (0-5)
         data["Vaccinated Booster y0 (Aged 2)"] = data["Vaccinated Aged 2"] * coverage_2
@@ -86,10 +92,20 @@ class FeatureEnginnering(DataFrameCleaner):
         boost_efficacy_coefs = []
 
         for time in range(6):
-            primary_efficacy_coefs.append(self._neg_exp(time, initial_efficacy))
+            if r21:
+                primary_efficacy_coefs.append(
+                    self._neg_exp(time, initial_efficacy, b_1=0.3)
+                )
+            else:
+                primary_efficacy_coefs.append(self._neg_exp(time, initial_efficacy))
 
         for time in range(4):
-            boost_efficacy_coefs.append(self._neg_exp(time, efficacy_booster))
+            if r21:
+                boost_efficacy_coefs.append(
+                    self._neg_exp(time, efficacy_booster, b_1=0.3)
+                )
+            else:
+                boost_efficacy_coefs.append(self._neg_exp(time, efficacy_booster))
 
         data["Effectively_protected (0-5)"] = (
             np.array(primary_efficacy_coefs) * np.array(data[vac_columns])
@@ -103,7 +119,7 @@ class FeatureEnginnering(DataFrameCleaner):
         data["Vaccinated_still_susceptibles (0-5)"] = (
             (1 - np.array(primary_efficacy_coefs)) * np.array(data[vac_columns])
         ).sum(axis=1) + (
-            1 - (np.array(boost_efficacy_coefs)) * np.array(data[vac_boost_columns])
+            (1 - np.array(boost_efficacy_coefs)) * np.array(data[vac_boost_columns])
         ).sum(
             axis=1
         )
@@ -111,7 +127,13 @@ class FeatureEnginnering(DataFrameCleaner):
         return data
 
     def create_new_features_for_future(
-        self, column: str, coverage_0, coverage_2, initial_efficacy, efficacy_booster
+        self,
+        column: str,
+        coverage_0,
+        coverage_2,
+        initial_efficacy,
+        efficacy_booster,
+        r21=False,
     ):
         """Creating new_features"""
 
@@ -119,7 +141,12 @@ class FeatureEnginnering(DataFrameCleaner):
 
         added_subframes = [
             self._creating_appropiate_susceptible_and_vaccinated_for_future(
-                frame, coverage_0, coverage_2, initial_efficacy, efficacy_booster
+                frame,
+                coverage_0,
+                coverage_2,
+                initial_efficacy,
+                efficacy_booster,
+                r21=r21,
             )
             for frame in subsets
         ]
@@ -129,7 +156,7 @@ class FeatureEnginnering(DataFrameCleaner):
         return updated_data
 
     def _creating_appropiate_susceptible_and_vaccinated_for_present(
-        self, data, initial_efficacy
+        self, data, initial_efficacy, r21=False
     ):
         """Util function thta create new features"""
 
@@ -150,7 +177,7 @@ class FeatureEnginnering(DataFrameCleaner):
             "Vaccinated Aged 5",
         ]
 
-        # feat2: Susceptibles, not vaccinated (0-5)
+        # # feat2: Susceptibles, not vaccinated (0-5)
         for i in range(1, 6):
             data[f"Vaccinated Aged {i}"] = (
                 data[f"Vaccinated Aged {i-1}"].shift(1)
@@ -158,15 +185,20 @@ class FeatureEnginnering(DataFrameCleaner):
             )
 
         data[vac_columns] = data[vac_columns].fillna(0)
-        data["Susceptibles, not vaccinated (0-5)"] = (
-            np.array(data[pop_columns]) - np.array(data[vac_columns])
-        ).sum(axis=1)
+        # data["Susceptibles, not vaccinated (0-5)"] = (
+        #     np.array(data[pop_columns]) - np.array(data[vac_columns])
+        # ).sum(axis=1)
 
         # feat3: Effectively_protected (0-5)
         primary_efficacy_coefs = []
 
         for time in range(6):
-            primary_efficacy_coefs.append(self._neg_exp(time, initial_efficacy))
+            if r21:
+                primary_efficacy_coefs.append(
+                    self._neg_exp(time, initial_efficacy, b_1=0.3)
+                )
+            else:
+                primary_efficacy_coefs.append(self._neg_exp(time, initial_efficacy))
 
         data["Effectively_protected (0-5)"] = (
             np.array(primary_efficacy_coefs) * np.array(data[vac_columns])
@@ -179,18 +211,58 @@ class FeatureEnginnering(DataFrameCleaner):
 
         return data
 
-    def create_new_features_for_present(
-        self, column: str, initial_efficacy
-    ):
+    def create_new_features_for_present(self, column: str, initial_efficacy, r21=False):
         """Creating new_features"""
 
         subsets = self.split_in_subframes(column)
 
         added_subframes = [
             self._creating_appropiate_susceptible_and_vaccinated_for_present(
-                frame, initial_efficacy
+                frame, initial_efficacy, r21=r21
             )
             for frame in subsets
+        ]
+
+        updated_data = pd.concat(added_subframes)
+
+        return updated_data
+
+    def _generate_remaining_futur_columns(
+        self, last_data, futur_data, remaining_columns, remaining_columns_dict
+    ):
+        """utils function to generate remaining futur data columns"""
+        for column in remaining_columns:
+            growth_rate = (
+                last_data[remaining_columns_dict[column]].pct_change()
+            ).mean()
+            value_2023 = (
+                last_data[remaining_columns_dict[column]].tail(1).values[0]
+            ) * (1 + growth_rate)
+
+            futur_values = [value_2023]
+
+            for i in range(len(futur_data) - 1):
+                futur_values.append(futur_values[i] * (1 + growth_rate))
+
+            futur_data[column] = futur_values
+
+        return futur_data
+
+    def create_remaining_futur_columns(
+        self, split_column, last_data, remaining_columns, remaining_columns_dict
+    ):
+        """create the remaining columns for futur data"""
+
+        subsets_last = self.split_in_subframes(
+            split_column, data=last_data, external_data=True
+        )
+        subsets_futur = self.split_in_subframes(split_column)
+
+        added_subframes = [
+            self._generate_remaining_futur_columns(
+                frame_last, frame_futur, remaining_columns, remaining_columns_dict
+            )
+            for frame_last, frame_futur in zip(subsets_last, subsets_futur)
         ]
 
         updated_data = pd.concat(added_subframes)
