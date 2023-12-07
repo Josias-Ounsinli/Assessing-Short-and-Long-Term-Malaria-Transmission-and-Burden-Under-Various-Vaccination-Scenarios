@@ -31,6 +31,9 @@ def build_train_test_datasets(
     train_limit="2019",
     # val_limit="2021",
     scaler_str="standard",
+    target=True,
+    split=True,
+    test=True,
 ):
     """
     Creates training and test sets while applying normalization if specified in the parameters.
@@ -65,16 +68,26 @@ def build_train_test_datasets(
     scaler_targets : sklearn.preprocessing.MinMaxScaler or sklearn.preprocessing.StandardScaler
         The normalization coefficients for the "Min-Max" operation applied to the targets data.
     """
+    train_targets = None
+    test_inputs = None
+    test_targets = None
+    scaler_targets = None
 
     # Build train set using data from 2000 to 2018
-    train_inputs = (
-        data[index_cols + input_cols].loc[data.Date < train_limit].set_index(index_cols)
-    )
-    train_targets = (
-        data[index_cols + target_cols]
-        .loc[data.Date < train_limit]
-        .set_index(index_cols)
-    )
+    if split:
+        train_inputs = (
+            data[index_cols + input_cols]
+            .loc[data.Date < train_limit]
+            .set_index(index_cols)
+        )
+    else:
+        train_inputs = data[index_cols + input_cols].set_index(index_cols)
+    if target:
+        train_targets = (
+            data[index_cols + target_cols]
+            .loc[data.Date < train_limit]
+            .set_index(index_cols)
+        )
 
     # Build test set using data from 2020
     # val_inputs = (
@@ -89,16 +102,17 @@ def build_train_test_datasets(
     # )
 
     # Build test set using data from 2020
-    test_inputs = (
-        data[index_cols + input_cols]
-        .loc[data.Date >= train_limit]
-        .set_index(index_cols)
-    )
-    test_targets = (
-        data[index_cols + target_cols]
-        .loc[data.Date >= train_limit]
-        .set_index(index_cols)
-    )
+    if test:
+        test_inputs = (
+            data[index_cols + input_cols]
+            .loc[data.Date >= train_limit]
+            .set_index(index_cols)
+        )
+        test_targets = (
+            data[index_cols + target_cols]
+            .loc[data.Date >= train_limit]
+            .set_index(index_cols)
+        )
 
     d_train_test = {}
     d_train_test["NonScaled"] = {
@@ -113,45 +127,49 @@ def build_train_test_datasets(
 
     elif scaler_str.lower() == "minmax":
         inputs_train_index = train_inputs.index
-        inputs_test_index = test_inputs.index
-        # inputs_val_index = val_inputs.index
-
-        targets_train_index = train_targets.index
-        targets_test_index = test_targets.index
-        # targets_val_index = val_targets.index
+        if test:
+            inputs_test_index = test_inputs.index
+            # inputs_val_index = val_inputs.index
+        if target:
+            targets_train_index = train_targets.index
+            targets_test_index = test_targets.index
+            # targets_val_index = val_targets.index
 
         # Apply rescaling
         scaler_inputs = MinMaxScaler()
         train_inputs = scaler_inputs.fit_transform(train_inputs)
-        test_inputs = scaler_inputs.transform(test_inputs)
-        # val_inputs = scaler_inputs.transform(val_inputs)
-
-        scaler_targets = MinMaxScaler()
-        train_targets = scaler_targets.fit_transform(train_targets)
-        test_targets = scaler_targets.transform(test_targets)
-        # val_targets = scaler_targets.transform(val_targets)
+        if test:
+            test_inputs = scaler_inputs.transform(test_inputs)
+            # val_inputs = scaler_inputs.transform(val_inputs)
+        if target:
+            scaler_targets = MinMaxScaler()
+            train_targets = scaler_targets.fit_transform(train_targets)
+            test_targets = scaler_targets.transform(test_targets)
+            # val_targets = scaler_targets.transform(val_targets)
 
         # Convert normalized values to dataframe
         train_inputs = pd.DataFrame(
             data=train_inputs, index=inputs_train_index, columns=input_cols
         )
-        test_inputs = pd.DataFrame(
-            data=test_inputs, index=inputs_test_index, columns=input_cols
-        )
-        # val_inputs = pd.DataFrame(
-        #     data=val_inputs, index=inputs_val_index, columns=input_cols
-        # )
+        if test:
+            test_inputs = pd.DataFrame(
+                data=test_inputs, index=inputs_test_index, columns=input_cols
+            )
+            # val_inputs = pd.DataFrame(
+            #     data=val_inputs, index=inputs_val_index, columns=input_cols
+            # )
 
-        train_targets = pd.DataFrame(
-            data=train_targets, index=targets_train_index, columns=target_cols
-        )
-        test_targets = pd.DataFrame(
-            data=test_targets, index=targets_test_index, columns=target_cols
-        )
+        if target:
+            train_targets = pd.DataFrame(
+                data=train_targets, index=targets_train_index, columns=target_cols
+            )
+            test_targets = pd.DataFrame(
+                data=test_targets, index=targets_test_index, columns=target_cols
+            )
 
-        # val_targets = pd.DataFrame(
-        #     data=val_targets, index=targets_val_index, columns=target_cols
-        # )
+            # val_targets = pd.DataFrame(
+            #     data=val_targets, index=targets_val_index, columns=target_cols
+            # )
 
         d_train_test["Scaled"] = {
             "train": {"Inputs": train_inputs, "Targets": train_targets},
@@ -161,44 +179,47 @@ def build_train_test_datasets(
 
     elif scaler_str.lower() == "std" or scaler_str.lower() == "standard":
         inputs_train_index = train_inputs.index
-        inputs_test_index = test_inputs.index
-        # inputs_val_index = val_inputs.index
-
-        targets_train_index = train_targets.index
-        targets_test_index = test_targets.index
-        # targets_val_index = val_targets.index
+        if test:
+            inputs_test_index = test_inputs.index
+            # inputs_val_index = val_inputs.index
+        if target:
+            targets_train_index = train_targets.index
+            targets_test_index = test_targets.index
+            # targets_val_index = val_targets.index
 
         # Apply rescaling
         scaler_inputs = StandardScaler()
         train_inputs = scaler_inputs.fit_transform(train_inputs)
-        test_inputs = scaler_inputs.transform(test_inputs)
-        # val_inputs = scaler_inputs.transform(val_inputs)
-
-        scaler_targets = StandardScaler()
-        train_targets = scaler_targets.fit_transform(train_targets)
-        test_targets = scaler_targets.transform(test_targets)
-        # val_targets = scaler_targets.transform(val_targets)
+        if test:
+            test_inputs = scaler_inputs.transform(test_inputs)
+            # val_inputs = scaler_inputs.transform(val_inputs)
+        if target:
+            scaler_targets = StandardScaler()
+            train_targets = scaler_targets.fit_transform(train_targets)
+            test_targets = scaler_targets.transform(test_targets)
+            # val_targets = scaler_targets.transform(val_targets)
 
         # Convert normalized values to dataframe
         train_inputs = pd.DataFrame(
             data=train_inputs, index=inputs_train_index, columns=input_cols
         )
-        test_inputs = pd.DataFrame(
-            data=test_inputs, index=inputs_test_index, columns=input_cols
-        )
-        # val_inputs = pd.DataFrame(
-        #     data=val_inputs, index=inputs_val_index, columns=input_cols
-        # )
-
-        train_targets = pd.DataFrame(
-            data=train_targets, index=targets_train_index, columns=target_cols
-        )
-        test_targets = pd.DataFrame(
-            data=test_targets, index=targets_test_index, columns=target_cols
-        )
-        # val_targets = pd.DataFrame(
-        #     data=val_targets, index=targets_val_index, columns=target_cols
-        # )
+        if test:
+            test_inputs = pd.DataFrame(
+                data=test_inputs, index=inputs_test_index, columns=input_cols
+            )
+            # val_inputs = pd.DataFrame(
+            #     data=val_inputs, index=inputs_val_index, columns=input_cols
+            # )
+        if target:
+            train_targets = pd.DataFrame(
+                data=train_targets, index=targets_train_index, columns=target_cols
+            )
+            test_targets = pd.DataFrame(
+                data=test_targets, index=targets_test_index, columns=target_cols
+            )
+            # val_targets = pd.DataFrame(
+            #     data=val_targets, index=targets_val_index, columns=target_cols
+            # )
 
         d_train_test["Scaled"] = {
             "train": {"Inputs": train_inputs, "Targets": train_targets},
@@ -213,70 +234,125 @@ def build_train_test_datasets(
     return d_train_test, scaler_inputs, scaler_targets
 
 
-def build_sequences(df_inputs, df_targets, seq_length, index_cols):
+def build_sequences(df_inputs, df_targets, seq_length, index_cols, target=True):
     """Build sequences"""
     # Reset set index
     df_inputs = df_inputs.reset_index()
-    df_targets = df_targets.reset_index()
+    if target:
+        df_targets = df_targets.reset_index()
 
-    X, y = [], []
+    X = []
+    if target:
+        y = []
 
     for country in df_inputs["ISO3"].unique():
         country_data_inputs = df_inputs[df_inputs["ISO3"] == country]
-        country_data_targets = df_targets[df_targets["ISO3"] == country]
+        if target:
+            country_data_targets = df_targets[df_targets["ISO3"] == country]
         country_data_inputs = country_data_inputs.set_index(index_cols)
-        country_data_targets = country_data_targets.set_index(index_cols)
+        if target:
+            country_data_targets = country_data_targets.set_index(index_cols)
         for i in range(len(country_data_inputs) - seq_length):
             X.append(country_data_inputs.iloc[i : i + seq_length].values)
-            y.append(country_data_targets.iloc[i + seq_length].values)
+            if target:
+                y.append(country_data_targets.iloc[i + seq_length].values)
 
     X = np.array(X)
-    y = np.array(y)
+    if target:
+        y = np.array(y)
+        return X, y
+    else:
+        return X
 
-    return X, y
+
+def model_builder(func):
+    def wrapper(*args, **kwargs):
+        model = func(*args, **kwargs)
+
+        # hp_learning_rate = hp.Choice("learning_rate", values=[1e-2, 1e-3, 1e-4])
+
+        model.compile(
+            optimizer="adam",
+            loss="mse",
+            metrics=["mae"],
+        )
+
+        return model
+
+    return wrapper
 
 
 def define_LSTM_net(
-    seq_length, n_features, n_targets, layers: list = [100, 50, 10], fn_act="tanh"
+    # seq_length,
+    # n_features,
+    # n_targets,
+    # layers: list = [100, 50, 10],
+    hp,
+    # fn_act="tanh",
 ):
     """Create the model"""
+    seq_length = 1
+    n_features = 27
+    n_targets = 3
+
+    # Define ranges and values for optimization
+    hp_nb_layers = hp.Int("num_layers", min_value=1, max_value=4)
+    fn_act = hp.Choice("activation", values=["relu", "tanh"])
 
     model_lstm = Sequential()
     model_lstm.add(
         LSTM(
-            layers[0],
+            units=hp.Int("units_1", min_value=8, max_value=100, step=8),
+            # layers[0],
             activation=fn_act,
             input_shape=(seq_length, n_features),
             return_sequences=True,
         )
     )
-    model_lstm.add(Dropout(0.2))
+    model_lstm.add(
+        Dropout(hp.Float("dropout_1", min_value=0.2, max_value=0.5, step=0.1))
+    )
 
-    for idx in range(1, len(layers) - 1):
-        model_lstm.add(LSTM(layers[idx], activation=fn_act, return_sequences=True))
-        model_lstm.add(Dropout(0.2))
+    for i in range(hp_nb_layers):
+        model_lstm.add(
+            LSTM(
+                units=hp.Int(f"units_{i+2}", min_value=8, max_value=100, step=8),
+                activation=fn_act,
+                return_sequences=True,
+            )
+        )
+        model_lstm.add(
+            Dropout(hp.Float(f"dropout_{i+2}", min_value=0.2, max_value=0.5, step=0.1))
+        )
 
-    model_lstm.add(LSTM(layers[-1], activation=fn_act))
-    model_lstm.add(Dropout(0.2))
+    model_lstm.add(
+        LSTM(
+            units=hp.Int("units_last", min_value=8, max_value=100, step=8),
+            activation=fn_act,
+        )
+    )
+    model_lstm.add(
+        Dropout(hp.Float("dropout_last", min_value=0.2, max_value=0.5, step=0.1))
+    )
 
     model_lstm.add(Dense(n_targets))
 
-    # Summary of the model
-    model_lstm.summary()
+    # # Summary of the model
+    # model_lstm.summary()
 
-    # Plot model architecture
-    plot_model(
-        model_lstm,
-        to_file="../plots/model.png",
-        show_shapes=True,
-        show_layer_names=True,
-        show_layer_activations=True,
-    )
+    # # Plot model architecture
+    # plot_model(
+    #     model_lstm,
+    #     to_file="../plots/model.png",
+    #     show_shapes=True,
+    #     show_layer_names=True,
+    #     show_layer_activations=True,
+    # )
 
     return model_lstm
 
 
-def train_lstm(X_train, y_train, X_test, y_test, d_learning_params, results_dir):
+def train_lstm(X_train, y_train, X_test, y_test, model, d_learning_params, results_dir):
     """Train model"""
 
     # Get today datetime to create the model file
@@ -316,20 +392,20 @@ def train_lstm(X_train, y_train, X_test, y_test, d_learning_params, results_dir)
     ]
 
     # Create model network
-    model = define_LSTM_net(
-        seq_length=X_train.shape[1],
-        n_features=X_train.shape[2],
-        n_targets=y_train.shape[1],
-        layers=d_learning_params["layers"],
-        fn_act=d_learning_params["activation_fn"],
-    )
+    # model = define_LSTM_net(
+    #     seq_length=X_train.shape[1],
+    #     n_features=X_train.shape[2],
+    #     n_targets=y_train.shape[1],
+    #     layers=d_learning_params["layers"],
+    #     fn_act=d_learning_params["activation_fn"],
+    # )
 
-    # compile model using optimizer and loss
-    model.compile(
-        optimizer=d_learning_params["optimizer"],
-        loss=d_learning_params["loss_fn"],
-        metrics=d_learning_params["metrics"],
-    )
+    # # compile model using optimizer and loss
+    # model.compile(
+    #     optimizer=d_learning_params["optimizer"],
+    #     loss=d_learning_params["loss_fn"],
+    #     metrics=d_learning_params["metrics"],
+    # )
 
     # Training
     history = model.fit(
