@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from matplotlib import gridspec
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 
 
 class EDAPlots:
@@ -110,11 +111,9 @@ class EDAPlots:
             "Feature_25",
             "Feature_26",
             "Feature_27",
-            "Feature_28",
-            "Feature_29",
-            "Feature_30",
-            "Feature_31",
-            "Feature_32",
+            # "Feature_28",
+            # "Feature_29",
+            # "Feature_30",
         ]
 
         targets = [
@@ -269,13 +268,23 @@ class EDAPlots:
                     axis[i, j].set_title(kwargs["subtitles"][i * kwargs["ncols"] + j])
                     axis[0, 1].set_xlabel("")
 
-        fig.suptitle(
-            "\nSummary of the target variables per country over the study period (2000-2022)\n",
-            y=0.98,
-            fontsize=14,
-        )
-        fig.tight_layout()
-        fig.savefig("../plots/description_targets_per_country.png")
+        if kwargs["target"]:
+            fig.suptitle(
+                "\nSummary of the target variables per country over the study period (2000-2022)\n",
+                y=0.98,
+                fontsize=14,
+            )
+            fig.tight_layout()
+            fig.savefig("../plots/description_targets_per_country.png")
+
+        else:
+            fig.suptitle(
+                "\nSummary of some variables per country over the study period (2000-2022)\n",
+                y=0.98,
+                fontsize=14,
+            )
+            fig.tight_layout()
+            fig.savefig("../plots/description_some_variables_per_country.png")
 
     def plot_serie_per_country(
         self, data: pd.DataFrame, country_column: str, targets_list: list, **kwargs
@@ -303,8 +312,8 @@ class EDAPlots:
                 #         )
                 #     )
 
-                focus_on_rts = data[data["Feature_27"] == 1]
-                focus_on_r21 = data[data["Feature_28"] == 1]
+                focus_on_rts = data[data["Feature_26"] == 1]
+                focus_on_r21 = data[data["Feature_27"] == 1]
 
                 for target in targets_list:
                     sns.lineplot(
@@ -493,58 +502,58 @@ class EDAPlots:
             fig.tight_layout()
             fig.savefig(f"../plots/Target_series_per_country.png")
 
-    def serve_country_predictions(self, country, data, targets_list, **kwargs):
-        """Serve country predictions"""
+    # def serve_country_predictions(self, country, data, targets_list, **kwargs):
+    #     """Serve country predictions"""
 
-        if kwargs["centered"]:
-            fig, axis = self._subplots_centered(
-                nrows=kwargs["nrows"],
-                ncols=kwargs["ncols"],
-                figsize=kwargs["figsize"],
-                nfigs=kwargs["nfigs"],
-            )
+    #     if kwargs["centered"]:
+    #         fig, axis = self._subplots_centered(
+    #             nrows=kwargs["nrows"],
+    #             ncols=kwargs["ncols"],
+    #             figsize=kwargs["figsize"],
+    #             nfigs=kwargs["nfigs"],
+    #         )
 
-            for variable in targets_list:
-                (
-                    data.set_index("Date")
-                    .groupby("Predicted")[variable]
-                    .plot(
-                        ax=axis[targets_list.index(variable)],
-                        ylabel=variable,
-                        style=".-",
-                        title=f"{kwargs['target_names'][targets_list.index(variable)]}",
-                    )
-                )
+    #         for variable in targets_list:
+    #             (
+    #                 data.set_index("Date")
+    #                 .groupby("Predicted")[variable]
+    #                 .plot(
+    #                     ax=axis[targets_list.index(variable)],
+    #                     ylabel=variable,
+    #                     style=".-",
+    #                     title=f"{kwargs['target_names'][targets_list.index(variable)]}",
+    #                 )
+    #             )
 
-        else:
-            fig, axis = plt.subplots(
-                nrows=kwargs["nrows"],
-                ncols=kwargs["ncols"],
-                figsize=kwargs["figsize"],
-                sharex=True,
-                constrained_layout=True,
-            )
+    #     else:
+    #         fig, axis = plt.subplots(
+    #             nrows=kwargs["nrows"],
+    #             ncols=kwargs["ncols"],
+    #             figsize=kwargs["figsize"],
+    #             sharex=True,
+    #             constrained_layout=True,
+    #         )
 
-            for i in range(kwargs["nrows"]):
-                for j in range(kwargs["ncols"]):
-                    (
-                        data.set_index("Date")
-                        .groupby("Predicted")[targets_list[i * kwargs["ncols"] + j]]
-                        .plot(
-                            ax=axis[i, j],
-                            ylabel=targets_list[i * kwargs["ncols"] + j],
-                            style=".-",
-                            title=f"{kwargs['target_names'][i * kwargs['ncols'] + j]}",
-                        )
-                    )
+    #         for i in range(kwargs["nrows"]):
+    #             for j in range(kwargs["ncols"]):
+    #                 (
+    #                     data.set_index("Date")
+    #                     .groupby("Predicted")[targets_list[i * kwargs["ncols"] + j]]
+    #                     .plot(
+    #                         ax=axis[i, j],
+    #                         ylabel=targets_list[i * kwargs["ncols"] + j],
+    #                         style=".-",
+    #                         title=f"{kwargs['target_names'][i * kwargs['ncols'] + j]}",
+    #                     )
+    #                 )
 
-        fig.suptitle(
-            f"\nMalaria Trends in {country} from 2000 to 2070\n",
-            y=0.98,
-            fontsize=14,
-        )
-        fig.tight_layout()
-        fig.savefig(f"../plots/{country}_normal_predictions.png")
+    #     fig.suptitle(
+    #         f"\nMalaria Trends in {country} from 2000 to 2070\n",
+    #         y=0.98,
+    #         fontsize=14,
+    #     )
+    #     fig.tight_layout()
+    #     fig.savefig(f"../plots/{country}_normal_predictions.png")
 
     # def sirvd_dynamics(self, t_pred, compartments: dict, for_scenario):
     #     """Plot model compartments dynamics
@@ -566,7 +575,12 @@ class EDAPlots:
     #     plt.show()
 
     def evolution_plot_per_country(
-        self, data: pd.DataFrame, country_column: str, variables: list, **kwargs
+        self,
+        data: pd.DataFrame,
+        country_column: str,
+        variables: list,
+        scenario,
+        **kwargs,
     ):
         """Describe a list of variable per country using pointplot"""
 
@@ -623,10 +637,154 @@ class EDAPlots:
                     axis[i, j].set_title(kwargs["subtitles"][i * kwargs["ncols"] + j])
                     axis[0, 1].set_xlabel("")
 
+        if kwargs["predictions"]:
+            fig.suptitle(
+                f"\nEvolution of the target variables per study country from 2023 to 2070 ({scenario})\n",
+                y=0.98,
+                fontsize=14,
+            )
+            fig.tight_layout()
+            fig.savefig(f"../plots/evolution_targets_per_study_country_{scenario}.png")
+        else:
+            fig.suptitle(
+                "\nEvolution of the target variables per study country over the study period (2000-2022)\n",
+                y=0.98,
+                fontsize=14,
+            )
+            fig.tight_layout()
+            fig.savefig("../plots/evolution_targets_per_study_country.png")
+
+    def plot_pacf_function_per_country(
+        self,
+        data: pd.DataFrame,
+        variable,
+        variable_name,
+        countries_names,
+        countries_codes,
+        **kwargs,
+    ):
+        """Describe a list of variable per country using pointplot"""
+
+        if kwargs["centered"]:
+            fig, axis = self._subplots_centered(
+                nrows=kwargs["nrows"],
+                ncols=kwargs["ncols"],
+                figsize=kwargs["figsize"],
+                nfigs=kwargs["nfigs"],
+            )
+
+            for country in countries_codes:
+                plot_pacf(
+                    data.loc[country][variable],
+                    lags=10,
+                    ax=axis[countries_codes.index(country)],
+                )  # Adjust lags as needed
+                axis[countries_codes.index(country)].set_title(
+                    f"Partial Autocorrelation Function (PACF) - {countries_names[countries_codes.index(country)]}"
+                )
+                axis[countries_codes.index(country)].set_xlabel("Lag")
+                axis[countries_codes.index(country)].set_ylabel("PACF")
+                # axis[variables.index(column)].legend()
+
+        else:
+            fig, axis = plt.subplots(
+                nrows=kwargs["nrows"],
+                ncols=kwargs["ncols"],
+                figsize=kwargs["figsize"],
+                sharex=True,
+                constrained_layout=True,
+            )
+
+            for i in range(kwargs["nrows"]):
+                for j in range(kwargs["ncols"]):
+                    plot_pacf(
+                        data.loc[countries_codes[i * kwargs["ncols"] + j]][variable],
+                        lags=10,
+                        ax=axis[i, j],
+                    )  # Adjust lags as needed
+                    axis[i, j].set_title(
+                        f'Partial Autocorrelation Function (PACF) - {countries_names[i * kwargs["ncols"] + j]}'
+                    )
+                    axis[i, j].set_xlabel("Lag")
+                    axis[i, j].set_ylabel("PACF")
+
+                    # axis[i, j].legend()
+
         fig.suptitle(
-            "\nEvolution of the target variables per study country over the study period (2000-2022)\n",
+            f"\nPartial autocorrelation functions of {variable_name}\n",
             y=0.98,
             fontsize=14,
         )
         fig.tight_layout()
-        fig.savefig("../plots/evolution_targets_per_study_country.png")
+        fig.savefig(f"../plots/pacf_{variable}.png")
+
+    def serve_predictions(
+        self,
+        data: pd.DataFrame,
+        country: str,
+        scenario_column,
+        variables: list,
+        **kwargs,
+    ):
+        """Describe a list of variable per country using pointplot"""
+
+        if kwargs["centered"]:
+            fig, axis = self._subplots_centered(
+                nrows=kwargs["nrows"],
+                ncols=kwargs["ncols"],
+                figsize=kwargs["figsize"],
+                nfigs=kwargs["nfigs"],
+            )
+
+            for column in variables:
+                sns.lineplot(
+                    data=data[data["ISO3"] == country],
+                    y=column,
+                    x=kwargs["x_column"],
+                    hue=scenario_column,
+                    style=scenario_column,
+                    markers=True,
+                    dashes=False,
+                    linewidth=1.5,
+                    markersize=8,
+                    ax=axis[variables.index(column)],
+                )
+
+                axis[variables.index(column)].set_title(
+                    kwargs["subtitles"][variables.index(column)]
+                )
+
+        else:
+            fig, axis = plt.subplots(
+                nrows=kwargs["nrows"],
+                ncols=kwargs["ncols"],
+                figsize=kwargs["figsize"],
+                sharex=True,
+                constrained_layout=True,
+            )
+
+            for i in range(kwargs["nrows"]):
+                for j in range(kwargs["ncols"]):
+                    sns.lineplot(
+                        data=data[data["ISO3"] == country],
+                        y=variables[i * kwargs["ncols"] + j],
+                        x=kwargs["x_column"],
+                        hue=scenario_column,
+                        style=scenario_column,
+                        markers=True,
+                        dashes=False,
+                        linewidth=2,
+                        markersize=10,
+                        ax=axis[i, j],
+                    )
+
+                    axis[i, j].set_title(kwargs["subtitles"][i * kwargs["ncols"] + j])
+                    axis[0, 1].set_xlabel("")
+
+        fig.suptitle(
+            f"\nEvolution of the target variables for each scenario from 2023 to 2070 in ({country})\n",
+            y=0.98,
+            fontsize=14,
+        )
+        fig.tight_layout()
+        fig.savefig(f"../plots/evolution_targets_per_scenario_in_{country}.png")

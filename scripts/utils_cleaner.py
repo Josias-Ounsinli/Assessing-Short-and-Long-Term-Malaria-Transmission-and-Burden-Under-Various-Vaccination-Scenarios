@@ -29,15 +29,24 @@ class DataFrameCleaner:
         self.data[column] = self.data[column].astype(int)
         self.data[column] = self.data[column].replace(-1, np.nan)
 
-    def split_in_subframes(self, column: str):
+    def split_in_subframes(self, column: str, external_data=False, data=None):
         """Split data in sub dataframes"""
-        keys = list(self.data[column].unique())
+        if external_data:
+            keys = list(data[column].unique())
 
-        subsets = []
+            subsets = []
 
-        for key in keys:
-            subset = self.data.loc[self.data[column] == key]
-            subsets.append(subset)
+            for key in keys:
+                subset = data.loc[data[column] == key]
+                subsets.append(subset)
+        else:
+            keys = list(self.data[column].unique())
+
+            subsets = []
+
+            for key in keys:
+                subset = self.data.loc[self.data[column] == key]
+                subsets.append(subset)
 
         return subsets
 
